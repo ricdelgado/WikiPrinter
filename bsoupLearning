@@ -3,6 +3,9 @@
 # Importanto bibliotecas
 # bs4 = beautifulsoup
 # requests = faz o download de uma página web
+
+#Teste 2
+
 import requests
 import bs4
 
