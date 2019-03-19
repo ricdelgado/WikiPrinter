@@ -1,0 +1,71 @@
+# APRENDENDNO A USAR A BIBLIOTECA BEAUTIFULSOUP
+
+# Importanto bibliotecas
+# bs4 = beautifulsoup
+# requests = faz o download de uma página web
+import requests
+import bs4
+
+# REQUISIÇÃO DE UMA PÁGINA DA WIKIPEDIA
+response = requests.get ('https://en.wikipedia.org/wiki/Ramesses_V')
+
+# CASO A REQUISIÇÃO TENHA SUCESSO
+if response.status_code == 200:
+    print('Ok.')
+
+    # Acessar o conteúdo com a biblioteca beautiful soup
+    sopaB = bs4.BeautifulSoup(response.content, "html.parser")
+
+    print("Tipo do objeto sopaB:")
+    print(type(sopaB))
+
+
+    #tag é um dos 4 tipos de objetos importantes na bsoup
+    #every tag has a name, accessible as .name:
+
+    print("name da tag p:")
+    tag = sopaB.p
+    print(tag.name)
+
+    # A tag may have any number of attributes.
+    # You can access a tag’s attributes by treating the tag like a dictionary:
+
+    tag2 = sopaB.div
+    print("Primeiro elemento com a tag div:")
+    print(tag2)
+    '''
+    print("Acessando o dicionário de atributos da tag div, class:")
+    print(tag2['class'])
+    print('')
+    '''
+
+
+    # A string corresponds to a bit of text within a tag.
+    # Beautiful Soup uses the NavigableString class to contain these bits of text:
+    '''
+    "http://dataquestio.github.io/web-scraping-pages/simple.html"
+    o método string retorna de uma tag tudo o que está dentro dela
+    <p class="content"> Este texto será retornado. </p>
+    '''
+    string_tag = tag.string
+    print(type(string_tag))
+    print(string_tag)
+
+
+    '''
+    armazenador = sopaB.p
+    testep = []
+    counter = 0
+    for counter in range(0,10):
+        testep.append(armazenador.string)
+        counter+1
+        armazenador.name = 'feito'
+        armazenador = sopaB.p
+
+    print(counter)
+    print("Resultados:")
+    print("")
+    print(testep[0])
+    print(testep[5])
+    print(testep[7])
+    '''
