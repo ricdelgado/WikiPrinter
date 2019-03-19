@@ -2,8 +2,6 @@
 
 # Exemplo montado a partir do exercício de webscraping de Yuri Alexsander
 
-#teste1
-
 
 ###
 
