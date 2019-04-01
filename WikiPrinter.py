@@ -12,11 +12,29 @@ import bs4
 
 
 # DECLARANDO VARIÁVEIS
-texto = []
-titulo = []
+
+#variáveis de apoio - apagar ao terminar
+count = 0
+test = {}
+temp1 = ""
+temp2 = []
+
+#variáveis reais
+#variaveis soup
+ttl = ""
+intro = ""
+txt = ""
+
+#variaveis/arrays para conter texto
+titulo = ""
+in_prgrf = []
+index = []
+sub_ttl = []
+prgrf = []
+
 
 # REQUISIÇÃO DE UMA PÁGINA DA WIKIPEDIA
-response = requests.get ("https://en.wikipedia.org/wiki/Ramesses_VI")
+response = requests.get ("https://en.wikipedia.org/wiki/Ramesses_V")
 
 # CASO A REQUISIÇÃO TENHA SUCESSO
 if response.status_code == 200:
@@ -25,58 +43,60 @@ if response.status_code == 200:
     # UTILIZANDO A BIBLIOTECA BEAUTIFUL SOUP PARA ACESSAR O CONTEÚDO DA REQUISIÇÃO
     bsoup = bs4.BeautifulSoup(response.content, "html.parser")
 
-    print(type(bsoup))
 
     # BUSCANDO O TÍTULO DO ARTIGO
-    # A biblioteca bsoup, com a função findAll(), gera variáveis do tipo bs4.element.ResultSet
-    # tbsoup é uma variável bs4.element.ResultSet
-    tbsoup = bsoup.findAll("h1", attrs={"class": "firstHeading"})
-
-    # TRABALHANDO A STRING DO TÍTULO
-
-    # converter bs4.element.ResultSet em string
-    titulo = str(tbsoup)
-
-    # encontrar os índices entre os quais onde o texto alvo está
-    m1 = titulo.find('>')
-    m2 = titulo.rfind('<')
-
-    # criando um objeto slice, com os índices, para limpar o código html da string
-    tSlice1 = slice(m1+1, m2, 1)
-
-    # aplicando o objeto slice na variável
-    titulo = titulo[tSlice1]
-
-    # TESTANDO O TÍTUTLO
-    print(titulo)
+    ttl = bsoup.find("div", id="content")
+    titulo = ttl.find("h1").get_text()
 
 
-    # Navegando a estrutura para extrair TEXTO
-    html = list(bsoup.children)[2]
-    head = list(html.children)[1]
-    body = list(html.children)[3]
-    div1 = list(body.children)[2]
-    print(div1)
+    # INTRODUCAO DO ARTIGO
+    txt = bsoup.find("div", attrs={"mw-parser-output"})
+
+    for row in txt:
+        #print(row.find("p"))
+        if row.name == "p":
+            in_prgrf.append(row.get_text())
+            #print("ok ---------------")
+        elif row.name == "div":
+            #print("terminou --------------")
+            break
 
 
-    '''
-    Não é assim que usa:
-    tbsoup2 = bsoup.stripped_strings()
-    print(tbsoup2)
-    print(type(tbsoup2))
-    '''
+    # INDICE DE SECOES
+    ind = bsoup.find("div", id="toc")
+    index.append(ind.find("h2").get_text())
+    #ind = bsoup.find("ul")  <--- é um problema quando há mais de uma tabela na paǵina
 
-    '''
-    Esse aqui extrai todas as strings. Não sei se é possível limpar de algum jeito simples, 
-    mas pra uma página da wikipedia, acho que não.
-    
-    for string in bsoup.strings:
-        print(string)
-    
-    '''
+    for row in ind.ul:  # <--- deste jeito é uma navegação dentro da tag anterior ("div", id="toc")
+        if row.name == "li":
+            index.append(row.find("span", attrs={"class":"toctext"}).get_text())
 
-    # Teste extração de texto - funciona, mas talvez n seja o ideal
-    # print(bsoup.get_text())
+
+    # SECOES E PARÁGRAFOS
+    for row in txt:
+        # este loop cria um dicionário onde o nome do subtitulo é a chave e os parágrafos são os valores
+        if row.name == "h2":
+            if temp1 != "":
+                # entra em ação somente após ter coletado um subtítulo
+                # cria uma chave no dicionário (subtitulo) e acrescenta os valores (paragrafos)
+                # len(temp1)-6 para remover o "[Edit] no fim do subtitulo
+                test[temp1[0:len(temp1)-6]]=temp2
+                # apaga a string temp2 para recomeçar a coleta de parágrafos
+                temp2 = []
+
+            # salva o subtitulo
+            temp1 = row.get_text()
+
+        elif row.name == "p" or row.name == "ul":
+            # salva o texto da seção
+            temp2.append(row.get_text())
 
 else:
     print("A requisição falhou.")
+
+print(titulo)
+print(in_prgrf)
+print(index)
+
+for x in range(1,len(index)-1):
+    print("\n{}\n{}\n".format(index[x], test[index[x]]))
